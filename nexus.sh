@@ -30,100 +30,34 @@ fi
 #    We explicitly read from /dev/tty to ensure user input is requested from the
 #    terminal rather than the script's standard input.
 # -----------------------------------------------------------------------------
-while [ -z "$NONINTERACTIVE" ] && [ ! -f "$NEXUS_HOME/config.json" ]; do
-    read -p "Do you agree to the Nexus Beta Terms of Use (https://nexus.xyz/terms-of-use)? (Y/n) " yn </dev/tty
-    echo ""
-
-    case $yn in
-        [Nn]* )
-            echo ""
-            exit;;
-        [Yy]* )
-            echo ""
-            break;;
-        "" )
-            echo ""
-            break;;
-        * )
-            echo "Please answer yes or no."
-            echo "";;
-    esac
-done
+# Đã sửa: Tự động đồng ý mà không prompt, giả định đồng ý nếu config chưa tồn tại.
+# while [ -z "$NONINTERACTIVE" ] && [ ! -f "$NEXUS_HOME/config.json" ]; do
+#     read -p "Do you agree to the Nexus Beta Terms of Use[](https://nexus.xyz/terms-of-use)? (Y/n) " yn </dev/tty
+#     echo ""
+#
+#     case $yn in
+#         [Nn]* )
+#             echo ""
+#             exit;;
+#         [Yy]* )
+#             echo ""
+#             break;;
+#         "" )
+#             echo ""
+#             break;;
+#         * )
+#             echo "Please answer yes or no."
+#             echo "";;
+#     esac
+# done
 
 # -----------------------------------------------------------------------------
 # 4) Determine the platform and architecture
 # -----------------------------------------------------------------------------
-case "$(uname -s)" in
-    Linux*)
-        PLATFORM="linux"
-        case "$(uname -m)" in
-            x86_64)
-                ARCH="x86_64"
-                BINARY_NAME="nexus-network-linux-x86_64"
-                ;;
-            aarch64|arm64)
-                ARCH="arm64"
-                BINARY_NAME="nexus-network-linux-arm64"
-                ;;
-            *)
-                echo "${RED}Unsupported architecture: $(uname -m)${NC}"
-                echo "Please build from source:"
-                echo "  git clone https://github.com/nexus-xyz/nexus-cli.git"
-                echo "  cd nexus-cli/clients/cli"
-                echo "  cargo build --release"
-                exit 1
-                ;;
-        esac
-        ;;
-    Darwin*)
-        PLATFORM="macos"
-        case "$(uname -m)" in
-            x86_64)
-                ARCH="x86_64"
-                BINARY_NAME="nexus-network-macos-x86_64"
-                echo "${ORANGE}Note: You are running on an Intel Mac.${NC}"
-                ;;
-            arm64)
-                ARCH="arm64"
-                BINARY_NAME="nexus-network-macos-arm64"
-                echo "${ORANGE}Note: You are running on an Apple Silicon Mac (M1/M2/M3).${NC}"
-                ;;
-            *)
-                echo "${RED}Unsupported architecture: $(uname -m)${NC}"
-                echo "Please build from source:"
-                echo "  git clone https://github.com/nexus-xyz/nexus-cli.git"
-                echo "  cd nexus-cli/clients/cli"
-                echo "  cargo build --release"
-                exit 1
-                ;;
-        esac
-        ;;
-    MINGW*|MSYS*|CYGWIN*)
-        PLATFORM="windows"
-        case "$(uname -m)" in
-            x86_64)
-                ARCH="x86_64"
-                BINARY_NAME="nexus-network-windows-x86_64.exe"
-                ;;
-            *)
-                echo "${RED}Unsupported architecture: $(uname -m)${NC}"
-                echo "Please build from source:"
-                echo "  git clone https://github.com/nexus-xyz/nexus-cli.git"
-                echo "  cd nexus-cli/clients/cli"
-                echo "  cargo build --release"
-                exit 1
-                ;;
-        esac
-        ;;
-    *)
-        echo "${RED}Unsupported platform: $(uname -s)${NC}"
-        echo "Please build from source:"
-        echo "  git clone https://github.com/nexus-xyz/nexus-cli.git"
-        echo "  cd nexus-cli/clients/cli"
-        echo "  cargo build --release"
-        exit 1
-        ;;
-esac
+# Đã sửa: Mặc định là linux x86_64, không detect từ uname.
+PLATFORM="linux"
+ARCH="x86_64"
+BINARY_NAME="nexus-network-linux-x86_64"
 
 # -----------------------------------------------------------------------------
 # 5) Download latest release binary
